@@ -15,16 +15,12 @@ jobs:
 
       - name: Replace Meta Tag Content
         run: |
-          # 1. Delete the existing line entirely
+          # 1. Delete any existing verification lines
           sed -i '/google-site-verification/d' index.html
           
-          # 2. Insert the new tag before the </head> tag
-          sed -i "/<\/head>/i <meta name=\"google-site-verification\" content=\"${{ github.event.client_payload.mc_code }}\" />" index.html
-
-      - name: Debug - Show file content
-        run: |
-          echo "Checking if the tag was updated in index.html:"
-          grep "google-site-verification" index.html
+          # 2. Force insert at the top of the file (after the first line)
+          # This is safer than looking for </head>
+          sed -i "2i <meta name=\"google-site-verification\" content=\"${{ github.event.client_payload.mc_code }}\" />" index.html
       - name: Debug - Show file content
         run: |
           echo "Checking if the tag was updated in index.html:"

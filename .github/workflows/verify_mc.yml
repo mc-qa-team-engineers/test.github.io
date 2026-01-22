@@ -1,0 +1,24 @@
+name: Update MC Verification
+on:
+  repository_dispatch:
+    types: [verify_mc_event]
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Replace Meta Tag Content
+        run: |
+          # Finds the meta tag and replaces the old content value with the new one
+          sed -i 's/content="[^"]*"/content="${{ github.event.client_payload.mc_code }}"/' index.html
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "Automation Bot"
+          git config --global user.email "bot@test.com"
+          git add index.html
+          git commit -m "Updated MC Tag"
+          git push

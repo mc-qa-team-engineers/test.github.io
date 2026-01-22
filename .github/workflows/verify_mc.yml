@@ -15,14 +15,20 @@ jobs:
 
       - name: Replace Meta Tag Content
         run: |
-          # Finds the meta tag and replaces the old content value
-          sed -i 's/content="[^"]*"/content="${{ github.event.client_payload.mc_code }}"/' index.html
+          # This version targets the google-site-verification line specifically.
+          # It replaces the entire line to ensure no quote or spacing issues.
+          sed -i 's|<meta name="google-site-verification".*/>|<meta name="google-site-verification" content="${{ github.event.client_payload.mc_code }}" />|' index.html
+
+      - name: Debug - Show file content
+        run: |
+          echo "Checking if the tag was updated in index.html:"
+          grep "google-site-verification" index.html
 
       - name: Commit and Push
         run: |
           git config --global user.name "Automation Bot"
           git config --global user.email "bot@test.com"
           git add index.html
-          # Use "|| true" to prevent the script from crashing if there's no change
-          git commit -m "Updated MC Tag" || true
+          # commit will only run if there are actual changes
+          git commit -m "Updated MC Tag to ${{ github.event.client_payload.mc_code }}" || echo "No changes detected"
           git push
